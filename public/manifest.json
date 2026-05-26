@@ -1,0 +1,21 @@
+{
+  "short_name": "EcoMealHub",
+  "name": "EcoWise Wealth & Meal Prep Hub",
+  "icons": [
+    {
+      "src": "https://jsdelivr.net",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "https://jsdelivr.net",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#f3f4f6",
+  "theme_color": "#10b981",
+  "display": "standalone",
+  "orientation": "portrait"
+}
