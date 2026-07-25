@@ -13,7 +13,7 @@ import { PartyForm } from './PartyForm';
 interface QuickPartyPickerProps {
   selectedPartyId?: string;
   onSelectParty: (party: Party | null) => void;
-  filterType?: 'customer' | 'supplier' | 'vendor' | 'all';
+  filterType?: 'customer' | 'supplier' | 'vendor' | 'lead' | 'other' | 'all';
   placeholder?: string;
   label?: string;
 }
@@ -30,7 +30,7 @@ export const QuickPartyPicker: React.FC<QuickPartyPickerProps> = ({
   const [search, setSearch] = useState('');
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
 
-  const pickerOptions: QuickPartyOption[] = getPartiesForPicker(parties, filterType);
+  const pickerOptions: QuickPartyOption[] = getPartiesForPicker(parties, filterType as any);
 
   const filteredOptions = pickerOptions.filter(
     (p) =>
