@@ -16,6 +16,7 @@ import { ApiInspectorModal } from './components/ApiInspectorModal';
 import { seedInitialPartiesData } from '../../db/database';
 import { Party } from './types';
 import { extractUniqueCities, extractUniqueTags } from './services/partiesSelectors';
+import { partiesService } from './api/partiesService';
 
 interface PartiesListPageProps {
   onNavigateToDetail: (id: string) => void;
@@ -50,13 +51,11 @@ export const PartiesListPage: React.FC<PartiesListPageProps> = ({
   };
 
   const handleArchive = async (id: string) => {
-    const { partiesService } = await import('./api/partiesService');
     await partiesService.archiveParty(id);
     await refresh();
   };
 
   const handleDuplicate = async (id: string) => {
-    const { partiesService } = await import('./api/partiesService');
     await partiesService.duplicateParty(id);
     await refresh();
   };

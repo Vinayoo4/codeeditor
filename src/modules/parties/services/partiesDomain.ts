@@ -105,7 +105,7 @@ export function getPartyBalanceSnapshot(party: Party): {
  */
 export function getPartiesForPicker(
   parties: Party[],
-  filterType?: 'customer' | 'supplier' | 'vendor' | 'all'
+  filterType?: 'customer' | 'supplier' | 'vendor' | 'lead' | 'other' | 'all'
 ): QuickPartyOption[] {
   return parties
     .filter((p) => p.status === 'active')
