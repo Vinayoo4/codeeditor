@@ -1,65 +1,49 @@
-/**
- * SALTEDHASH Business OS - Module 6: Parties
- * Unit Tests for Domain Logic, Schema Validation, and Selectors
- */
-
-import { validatePartyForm, validateAdjustBalanceInput } from '../services/partiesValidation';
-import {
-  calculateLedgerBalance,
-  calculatePartySummary,
-  applyBalanceChange,
-  validatePartyTypeTransition,
-} from '../services/partiesDomain';
+import { describe, it, expect } from 'vitest';
+import { validateCreatePartyInput } from '../services/partiesValidation';
+import { buildPartySummary, applyBalanceChange } from '../services/partiesDomain';
 import { Party } from '../types';
 
 describe('Parties Validation', () => {
   it('validates party name requirement', () => {
-    const res = validatePartyForm({
+    const errors = validateCreatePartyInput({
       name: '',
       type: 'customer',
-      status: 'active',
       openingBalance: 0,
       tags: [],
     });
-    expect(res.isValid).toBe(false);
-    expect(res.errors.name).toBeDefined();
+    expect(errors).toContainEqual(expect.objectContaining({ field: 'name' }));
   });
 
   it('validates email format if provided', () => {
-    const res = validatePartyForm({
+    const errors = validateCreatePartyInput({
       name: 'Acme Corp',
       type: 'customer',
-      status: 'active',
       email: 'invalid-email',
       openingBalance: 0,
       tags: [],
     });
-    expect(res.isValid).toBe(false);
-    expect(res.errors.email).toBeDefined();
+    expect(errors).toContainEqual(expect.objectContaining({ field: 'email' }));
   });
 
   it('passes valid party data', () => {
-    const res = validatePartyForm({
+    const errors = validateCreatePartyInput({
       name: 'Acme Corp',
       type: 'customer',
-      status: 'active',
       email: 'contact@acme.com',
       phone: '+1 555 123 4567',
       openingBalance: 500,
       tags: ['vip'],
     });
-    expect(res.isValid).toBe(true);
-    expect(Object.keys(res.errors)).toHaveLength(0);
+    expect(errors.length).toBe(0);
   });
 });
 
 describe('Parties Domain Logic', () => {
-  it('calculates total balance correctly from ledger entries', () => {
-    const balance = calculateLedgerBalance(100, [
-      { id: '1', partyId: 'p1', amount: 200, title: 'Sale', sourceType: 'sale', timestamp: '2026-01-01' },
-      { id: '2', partyId: 'p1', amount: -50, title: 'Payment', sourceType: 'payment', timestamp: '2026-01-02' },
-    ]);
-    expect(balance).toBe(250);
+  it('calculates balance change correctly', () => {
+    const balance = applyBalanceChange(100, -50);
+    expect(balance).toBe(50);
+    const balance2 = applyBalanceChange(50.50, 100);
+    expect(balance2).toBe(150.5);
   });
 
   it('calculates party summary positions', () => {
@@ -88,18 +72,27 @@ describe('Parties Domain Logic', () => {
         createdAt: '2026-01-01',
         updatedAt: '2026-01-01',
       },
+      {
+        id: '3',
+        partyCode: 'P003',
+        name: 'Archived Customer',
+        type: 'customer',
+        status: 'archived',
+        currentBalance: 0,
+        openingBalance: 0,
+        tags: [],
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      },
     ];
 
-    const summary = calculatePartySummary(sampleParties);
-    expect(summary.totalParties).toBe(2);
+    const summary = buildPartySummary(sampleParties);
+    expect(summary.totalParties).toBe(3);
+    expect(summary.totalCustomers).toBe(1);
     expect(summary.totalReceivables).toBe(500);
     expect(summary.totalPayables).toBe(200);
-    expect(summary.netLedgerPosition).toBe(300);
-  });
-
-  it('prevents illegal party type transitions with active balance', () => {
-    const result = validatePartyTypeTransition('customer', 'lead', 150);
-    expect(result.allowed).toBe(false);
-    expect(result.reason).toContain('outstanding balance');
+    expect(summary.netBalance).toBe(300);
+    expect(summary.activeCount).toBe(2);
+    expect(summary.archivedCount).toBe(1);
   });
 });
