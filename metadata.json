@@ -1,0 +1,6 @@
+{
+  "name": "SALTEDHASH Business OS",
+  "description": "Local-first master relationship registry for customers, suppliers, vendors, and ledger contacts with internal API contracts.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
