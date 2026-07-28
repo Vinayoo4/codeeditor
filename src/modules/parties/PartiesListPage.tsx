@@ -12,8 +12,7 @@ import { PartyList } from './components/PartyList';
 import { EmptyPartiesState } from './components/EmptyPartiesState';
 import { PartyForm } from './components/PartyForm';
 import { PartyQrModal } from './components/PartyQrModal';
-import { ApiInspectorModal } from './components/ApiInspectorModal';
-import { seedInitialPartiesData } from '../../db/database';
+
 import { Party } from './types';
 import { extractUniqueCities, extractUniqueTags } from './services/partiesSelectors';
 import { partiesService } from './api/partiesService';
@@ -37,18 +36,11 @@ export const PartiesListPage: React.FC<PartiesListPageProps> = ({
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [editingParty, setEditingParty] = useState<Party | null>(null);
   const [qrParty, setQrParty] = useState<Party | null>(null);
-  const [showApiInspector, setShowApiInspector] = useState(false);
-  const [isSeeding, setIsSeeding] = useState(false);
+
 
   const availableCities = extractUniqueCities(parties);
   const availableTags = extractUniqueTags(parties);
 
-  const handleSeedDemoData = async () => {
-    setIsSeeding(true);
-    await seedInitialPartiesData(true);
-    await refresh();
-    setIsSeeding(false);
-  };
 
   const handleArchive = async (id: string) => {
     await partiesService.archiveParty(id);
@@ -79,24 +71,7 @@ export const PartiesListPage: React.FC<PartiesListPageProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* API Inspector Modal Launcher */}
-          <button
-            onClick={() => setShowApiInspector(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl transition-colors"
-          >
-            <Code className="w-4 h-4 text-indigo-600" />
-            <span>API Inspector</span>
-          </button>
 
-          {/* Seed Demo Data Button */}
-          <button
-            onClick={handleSeedDemoData}
-            disabled={isSeeding}
-            className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl transition-colors disabled:opacity-50"
-          >
-            <Database className="w-4 h-4 text-indigo-500" />
-            <span>{isSeeding ? 'Seeding...' : 'Reset Demo Data'}</span>
-          </button>
 
           {/* Add New Party Primary Action */}
           <button
@@ -143,11 +118,10 @@ export const PartiesListPage: React.FC<PartiesListPageProps> = ({
       {qrParty && <PartyQrModal party={qrParty} onClose={() => setQrParty(null)} />}
 
       {/* API Inspector Modal */}
-      {showApiInspector && <ApiInspectorModal onClose={() => setShowApiInspector(false)} />}
 
       {/* Main Party List or Empty State */}
       {parties.length === 0 && !loading ? (
-        <EmptyPartiesState onAddNew={onNavigateToNew} onSeedDemoData={handleSeedDemoData} />
+        <EmptyPartiesState onAddNew={onNavigateToNew} />
       ) : (
         <PartyList
           parties={parties}

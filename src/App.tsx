@@ -11,8 +11,8 @@ function PartiesListWrapper() {
     <PartiesListPage
       onNavigateToDetail={(id) => navigate(`/parties/${id}`)}
       onNavigateToNew={() => navigate('/parties/new')}
-      onOpenSaleLink={(id) => console.log('Open sale link', id)}
-      onOpenExpenseLink={(id) => console.log('Open expense link', id)}
+      onOpenSaleLink={() => {}}
+      onOpenExpenseLink={() => {}}
     />
   );
 }
@@ -36,8 +36,8 @@ function PartyDetailWrapper() {
     <PartyDetailPage
       partyId={id}
       onBack={() => navigate('/parties')}
-      onOpenSaleLink={(id) => console.log('Open sale link', id)}
-      onOpenExpenseLink={(id) => console.log('Open expense link', id)}
+      onOpenSaleLink={() => {}}
+      onOpenExpenseLink={() => {}}
     />
   );
 }

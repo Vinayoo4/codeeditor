@@ -4,16 +4,14 @@
  */
 
 import React from 'react';
-import { Users, Plus, Database, Sparkles, UserPlus, ShoppingBag, Truck } from 'lucide-react';
+import { Users, Plus, Sparkles, UserPlus, Truck } from 'lucide-react';
 
 interface EmptyPartiesStateProps {
   onAddNew: () => void;
-  onSeedDemoData: () => void;
 }
 
 export const EmptyPartiesState: React.FC<EmptyPartiesStateProps> = ({
   onAddNew,
-  onSeedDemoData,
 }) => {
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 sm:p-12 text-center shadow-xs space-y-6 my-6">
@@ -61,13 +59,6 @@ export const EmptyPartiesState: React.FC<EmptyPartiesStateProps> = ({
           className="w-full sm:w-auto px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5"
         >
           <Plus className="w-4 h-4" /> Add First Party Record
-        </button>
-
-        <button
-          onClick={onSeedDemoData}
-          className="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5"
-        >
-          <Database className="w-4 h-4 text-indigo-500" /> Load Sample Demo Registry
         </button>
       </div>
     </div>
