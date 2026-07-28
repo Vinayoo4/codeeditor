@@ -39,7 +39,7 @@ export const AdjustmentModal: React.FC<AdjustmentModalProps> = ({ party, onSave,
       await onSave(actualAmount, title.trim(), sourceType, note.trim());
       onClose();
     } catch (err) {
-      console.error(err);
+      console.error("Adjustment error:", err);
     } finally {
       setIsSubmitting(false);
     }
