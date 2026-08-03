@@ -18,6 +18,10 @@ export interface CreatePartyInput {
   openingBalance?: number;
   notes?: string;
   tags?: string[];
+  website?: string;
+  whatsapp?: string;
+  relatedPartyIds?: string[];
+  relatedCatalogItemIds?: string[];
 }
 
 export interface UpdatePartyInput {
@@ -33,6 +37,10 @@ export interface UpdatePartyInput {
   notes?: string;
   tags?: string[];
   status?: PartyStatus;
+  website?: string;
+  whatsapp?: string;
+  relatedPartyIds?: string[];
+  relatedCatalogItemIds?: string[];
 }
 
 export interface PartyListQuery {

@@ -42,6 +42,7 @@ export async function auditAndMigrateLegacyParties(): Promise<MigrationAuditResu
                   const now = new Date().toISOString();
                   const newParty: Party = {
                     id: `prt_leg_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+                    slug: '', // Will be generated in repository
                     partyCode: newCode,
                     name: item.name.trim(),
                     type: (item.type as any) || 'customer',
@@ -51,6 +52,8 @@ export async function auditAndMigrateLegacyParties(): Promise<MigrationAuditResu
                     openingBalance: item.balance || 0,
                     currentBalance: item.balance || 0,
                     status: 'active',
+                    visible: true,
+                    version: 1,
                     tags: ['legacy-migrated'],
                     createdAt: now,
                     updatedAt: now,

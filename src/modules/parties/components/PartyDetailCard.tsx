@@ -204,6 +204,15 @@ export const PartyDetailCard: React.FC<PartyDetailCardProps> = ({
               <div className="text-slate-400 italic">No phone number recorded</div>
             )}
 
+            {party.whatsapp && (
+              <div className="flex items-center gap-2">
+                <Phone className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                <a href={`https://wa.me/${party.whatsapp.replace(/\D/g,'')}`} target="_blank" rel="noreferrer" className="hover:underline text-emerald-600 dark:text-emerald-400">
+                  {party.whatsapp} (WA)
+                </a>
+              </div>
+            )}
+
             {party.email ? (
               <div className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -213,6 +222,15 @@ export const PartyDetailCard: React.FC<PartyDetailCardProps> = ({
               </div>
             ) : (
               <div className="text-slate-400 italic">No email address recorded</div>
+            )}
+
+            {party.website && (
+              <div className="flex items-center gap-2">
+                <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <a href={party.website} target="_blank" rel="noreferrer" className="hover:underline text-indigo-600 dark:text-indigo-400">
+                  Website
+                </a>
+              </div>
             )}
           </div>
         </div>
@@ -266,6 +284,51 @@ export const PartyDetailCard: React.FC<PartyDetailCardProps> = ({
             </div>
           </div>
         )}
+
+        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Linked Relationships</h4>
+          <div className="space-y-2 text-xs">
+            {party.relatedExpenseIds && party.relatedExpenseIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-slate-500 w-28">Linked Expenses:</span>
+                {party.relatedExpenseIds.map(id => (
+                  <span key={id} className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md text-[11px] font-mono border border-slate-200 dark:border-slate-700">{id}</span>
+                ))}
+              </div>
+            )}
+
+            {party.relatedCatalogItemIds && party.relatedCatalogItemIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-slate-500 w-28">Linked Catalogue Items:</span>
+                {party.relatedCatalogItemIds.map(id => (
+                  <span key={id} className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md text-[11px] font-mono border border-slate-200 dark:border-slate-700">{id}</span>
+                ))}
+              </div>
+            )}
+
+            {party.relatedPartyIds && party.relatedPartyIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-slate-500 w-28">Linked Parties:</span>
+                {party.relatedPartyIds.map(id => (
+                  <span key={id} className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md text-[11px] font-mono border border-slate-200 dark:border-slate-700">{id}</span>
+                ))}
+              </div>
+            )}
+
+            {party.relatedTaskIds && party.relatedTaskIds.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-slate-500 w-28">Linked Tasks:</span>
+                {party.relatedTaskIds.map(id => (
+                  <span key={id} className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-md text-[11px] font-mono border border-slate-200 dark:border-slate-700">{id}</span>
+                ))}
+              </div>
+            )}
+
+            {(!party.relatedExpenseIds?.length && !party.relatedCatalogItemIds?.length && !party.relatedPartyIds?.length && !party.relatedTaskIds?.length) && (
+              <div className="text-slate-400 italic text-[11px]">No linked records.</div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

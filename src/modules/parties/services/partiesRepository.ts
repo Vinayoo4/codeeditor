@@ -3,7 +3,7 @@
  * Repository Layer for IndexedDB Persistence
  */
 
-import { db, seedInitialPartiesData } from '../../../db/database';
+import { db, seedInitialPartiesData, generateSlug } from '../../../db/database';
 import { Party, PartyHistoryEntry, PartySettings } from '../types';
 
 export class PartiesRepository {
@@ -44,6 +44,18 @@ export class PartiesRepository {
    */
   static async createPartyRecord(party: Party): Promise<Party> {
     await seedInitialPartiesData();
+
+    // Ensure slug, version, visible
+    if (!party.slug) {
+      party.slug = generateSlug(party.name, true);
+    }
+    if (typeof party.version === 'undefined') {
+      party.version = 1;
+    }
+    if (typeof party.visible === 'undefined') {
+      party.visible = party.status === 'active';
+    }
+
     await db.parties.put(party);
     return party;
   }
@@ -61,8 +73,14 @@ export class PartiesRepository {
     const updatedRecord: Party = {
       ...existing,
       ...updates,
+      version: (existing.version || 1) + 1,
       updatedAt: new Date().toISOString(),
     };
+
+    // Sync visible with status if status changes and visible wasn't explicitly updated
+    if (updates.status && updates.status !== existing.status && typeof updates.visible === 'undefined') {
+      updatedRecord.visible = updates.status === 'active';
+    }
 
     await db.parties.put(updatedRecord);
     return updatedRecord;
@@ -98,6 +116,8 @@ export class PartiesRepository {
     const updated = {
       ...party,
       status: newStatus as 'active' | 'archived',
+      visible: newStatus === 'active',
+      version: (party.version || 1) + 1,
       updatedAt: new Date().toISOString(),
     };
 
@@ -117,16 +137,27 @@ export class PartiesRepository {
 
     const newCode = await this.getNextPartyCode();
     const newId = `prt_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const newName = `${existing.name} (Copy)`;
     const nowISO = new Date().toISOString();
 
     const duplicatedParty: Party = {
       ...existing,
       id: newId,
+      slug: generateSlug(newName, true),
       partyCode: newCode,
-      name: `${existing.name} (Copy)`,
+      name: newName,
       currentBalance: 0,
       openingBalance: 0,
       status: 'active',
+      visible: true,
+      version: 1,
+      relatedExpenseIds: [],
+      relatedCatalogItemIds: [],
+      relatedPartyIds: [],
+      relatedTaskIds: [],
+      lifetimeValue: 0,
+      totalSpend: 0,
+      totalRevenue: 0,
       createdAt: nowISO,
       updatedAt: nowISO,
     };

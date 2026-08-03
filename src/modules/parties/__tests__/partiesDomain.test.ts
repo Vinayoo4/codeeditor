@@ -38,6 +38,24 @@ describe('Parties Validation', () => {
   });
 });
 
+describe('Slug Generation & Duplication', () => {
+  it('generates a clean slug from name', async () => {
+    // We import generateSlug inline to avoid polluting the top scope just for this simple test,
+    // but typically it'd be mocked or imported at top.
+    const { generateSlug } = await import('../../../db/database');
+    expect(generateSlug('Acme Corp!')).toBe('acme-corp');
+    expect(generateSlug('   Test --- Name   ')).toBe('test-name');
+  });
+
+  it('appends random suffix if requested', async () => {
+    const { generateSlug } = await import('../../../db/database');
+    const slug1 = generateSlug('Duplicate Name', true);
+    const slug2 = generateSlug('Duplicate Name', true);
+    expect(slug1).not.toBe(slug2);
+    expect(slug1).toContain('duplicate-name-');
+  });
+});
+
 describe('Parties Domain Logic', () => {
   it('calculates balance change correctly', () => {
     const balance = applyBalanceChange(100, -50);
@@ -50,10 +68,13 @@ describe('Parties Domain Logic', () => {
     const sampleParties: Party[] = [
       {
         id: '1',
+        slug: 'customer-a',
         partyCode: 'P001',
         name: 'Customer A',
         type: 'customer',
         status: 'active',
+        visible: true,
+        version: 1,
         currentBalance: 500,
         openingBalance: 0,
         tags: [],
@@ -62,10 +83,13 @@ describe('Parties Domain Logic', () => {
       },
       {
         id: '2',
+        slug: 'supplier-b',
         partyCode: 'P002',
         name: 'Supplier B',
         type: 'supplier',
         status: 'active',
+        visible: true,
+        version: 1,
         currentBalance: -200,
         openingBalance: 0,
         tags: [],
@@ -74,10 +98,13 @@ describe('Parties Domain Logic', () => {
       },
       {
         id: '3',
+        slug: 'archived-customer',
         partyCode: 'P003',
         name: 'Archived Customer',
         type: 'customer',
         status: 'archived',
+        visible: false,
+        version: 1,
         currentBalance: 0,
         openingBalance: 0,
         tags: [],
