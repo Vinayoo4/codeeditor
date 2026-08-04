@@ -233,6 +233,28 @@ export const PartyForm: React.FC<PartyFormProps> = ({ initialParty, onSaved, onC
           />
         </div>
 
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Website</label>
+          <input
+            type="url"
+            placeholder="e.g. https://example.com"
+            value={values.website || ''}
+            onChange={(e) => updateField('website', e.target.value)}
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">WhatsApp</label>
+          <input
+            type="text"
+            placeholder="e.g. +1 (555) 000-0000"
+            value={values.whatsapp || ''}
+            onChange={(e) => updateField('whatsapp', e.target.value)}
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+          />
+        </div>
+
         {/* Opening Balance (Only for new parties) */}
         {!isEdit && (
           <div className="space-y-1">
@@ -255,6 +277,30 @@ export const PartyForm: React.FC<PartyFormProps> = ({ initialParty, onSaved, onC
             </p>
           </div>
         )}
+      </div>
+
+      {/* Linked Relationships (Optional / Minimal Edit) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Linked Party IDs (comma separated)</label>
+          <input
+            type="text"
+            placeholder="e.g. prt_123, prt_456"
+            defaultValue={values.relatedPartyIds?.join(', ') || ''}
+            onBlur={(e) => updateField('relatedPartyIds', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Linked Catalog Item IDs (comma separated)</label>
+          <input
+            type="text"
+            placeholder="e.g. cat_001, cat_002"
+            defaultValue={values.relatedCatalogItemIds?.join(', ') || ''}
+            onBlur={(e) => updateField('relatedCatalogItemIds', e.target.value.split(',').map(s => s.trim()).filter(Boolean))}
+            className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+          />
+        </div>
       </div>
 
       {/* Tags Manager */}

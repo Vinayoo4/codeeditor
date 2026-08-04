@@ -66,14 +66,14 @@ export const PartyFilters: React.FC<PartyFiltersProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Status Dropdown */}
+          {/* Status/Visibility Dropdown */}
           <select
             value={query.status || 'active'}
             onChange={(e) => onChange({ status: e.target.value as any })}
             className="px-3 py-2 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-lg text-xs font-medium text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
           >
-            <option value="active">Active Parties</option>
-            <option value="archived">Archived Parties</option>
+            <option value="active">Visible / Active</option>
+            <option value="archived">Hidden / Archived</option>
             <option value="all">All Statuses</option>
           </select>
 

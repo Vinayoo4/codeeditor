@@ -16,20 +16,54 @@ export type HistorySourceType =
 
 export interface Party {
   id: string;
+  slug: string;
   partyCode: string;
   name: string;
+  displayName?: string;
+  legalName?: string;
   type: PartyType;
+  category?: string;
   phone?: string;
+  whatsapp?: string;
   email?: string;
+  website?: string;
   address?: string;
   city?: string;
   state?: string;
+  region?: string;
+  country?: string;
   gstin?: string;
   openingBalance?: number;
   currentBalance: number;
   notes?: string;
   tags?: string[];
   status: PartyStatus;
+  visible: boolean;
+  version: number;
+
+  // Relationships
+  ownerUserId?: string;
+  relatedPartyIds?: string[];
+  relatedCatalogItemIds?: string[];
+  relatedExpenseIds?: string[];
+  relatedTaskIds?: string[];
+
+  // Aggregates & Interaction
+  lifetimeValue?: number;
+  totalSpend?: number;
+  totalRevenue?: number;
+  lastInteractionAt?: string;
+
+  // Optional fields
+  taxId?: string;
+  billingInfo?: string;
+  shippingInfo?: string;
+  preferredLanguage?: string;
+  communicationPreference?: string;
+  paymentTerms?: string;
+  creditLimit?: number;
+  customFields?: Record<string, any>;
+
   createdAt: string; // ISO string
   updatedAt: string; // ISO string
 }

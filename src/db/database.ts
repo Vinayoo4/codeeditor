@@ -19,43 +19,78 @@ export class BusinessOSDatabase extends Dexie {
       historyEntries: 'id, partyId, sourceType, createdAt',
       settings: 'id',
     });
+
+    // Schema version 2
+    this.version(2).stores({
+      parties: 'id, slug, partyCode, name, type, status, visible, phone, email, city, currentBalance, createdAt, updatedAt',
+      historyEntries: 'id, partyId, sourceType, createdAt',
+      settings: 'id',
+    }).upgrade(tx => {
+      // Migrate version 1 to version 2
+      return tx.table('parties').toCollection().modify(party => {
+        if (!party.slug) {
+          // Fallback slug generation for migration
+          const baseSlug = party.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          const suffix = Math.random().toString(36).substring(2, 6);
+          party.slug = `${baseSlug}-${suffix}`;
+        }
+        if (typeof party.visible === 'undefined') {
+          party.visible = party.status === 'active';
+        }
+        if (typeof party.version === 'undefined') {
+          party.version = 1;
+        }
+        party.updatedAt = new Date().toISOString();
+      });
+    });
   }
 }
 
 export const db = new BusinessOSDatabase();
 
 /**
+ * Utility to generate a safe, unique slug
+ */
+export function generateSlug(name: string, appendRandom = false): string {
+  const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  if (appendRandom) {
+    return `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
+  }
+  return baseSlug;
+}
+
+/**
  * Initial Seed Data for SALTEDHASH Business OS Parties Registry
  */
 export async function seedInitialPartiesData(forceReset = false): Promise<void> {
-  const existingCount = await db.parties.count();
-  if (existingCount > 0 && !forceReset) {
-    return; // Already populated
-  }
-
   if (forceReset) {
     await db.parties.clear();
     await db.historyEntries.clear();
     await db.settings.clear();
   }
 
+  const existingSettings = await db.settings.get('default');
+
   const now = new Date();
   const subDays = (days: number) =>
     new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
 
   // Settings
-  await db.settings.put({
-    id: 'default',
-    nextPartyCodeNumber: 6,
-    partyCodePrefix: 'PRT',
-    allowCustomTypes: true,
-    recentTypes: ['customer', 'supplier', 'vendor', 'lead', 'other'],
-    updatedAt: now.toISOString(),
-  });
+  if (!existingSettings) {
+    await db.settings.put({
+      id: 'default',
+      nextPartyCodeNumber: 6,
+      partyCodePrefix: 'PRT',
+      allowCustomTypes: true,
+      recentTypes: ['customer', 'supplier', 'vendor', 'lead', 'other'],
+      updatedAt: now.toISOString(),
+    });
+  }
 
   const seedParties: Party[] = [
     {
       id: 'prt_101',
+      slug: 'acme-retailers-mart',
       partyCode: 'PRT-001',
       name: 'Acme Retailers & Mart',
       type: 'customer',
@@ -70,11 +105,14 @@ export async function seedInitialPartiesData(forceReset = false): Promise<void> 
       notes: 'Key retail buyer. Prefers monthly credit cycle and PDF invoicing.',
       tags: ['wholesale', 'vip', 'net30'],
       status: 'active',
+      visible: true,
+      version: 1,
       createdAt: subDays(45),
       updatedAt: subDays(2),
     },
     {
       id: 'prt_102',
+      slug: 'apex-packaging-ltd',
       partyCode: 'PRT-002',
       name: 'Apex Packaging Ltd',
       type: 'supplier',
@@ -89,11 +127,14 @@ export async function seedInitialPartiesData(forceReset = false): Promise<void> 
       notes: 'Primary eco-friendly box supplier. Minimum order quantity 500 units.',
       tags: ['raw-materials', 'recurring'],
       status: 'active',
+      visible: true,
+      version: 1,
       createdAt: subDays(60),
       updatedAt: subDays(5),
     },
     {
       id: 'prt_103',
+      slug: 'hyperion-logistics-freight',
       partyCode: 'PRT-003',
       name: 'Hyperion Logistics & Freight',
       type: 'vendor',
@@ -108,11 +149,14 @@ export async function seedInitialPartiesData(forceReset = false): Promise<void> 
       notes: 'Same-day regional courier partner. Contact: Marcus.',
       tags: ['freight', 'local'],
       status: 'active',
+      visible: true,
+      version: 1,
       createdAt: subDays(30),
       updatedAt: subDays(10),
     },
     {
       id: 'prt_104',
+      slug: 'nexa-digital-solutions',
       partyCode: 'PRT-004',
       name: 'Nexa Digital Solutions',
       type: 'lead',
@@ -127,11 +171,14 @@ export async function seedInitialPartiesData(forceReset = false): Promise<void> 
       notes: 'Prospective SaaS enterprise client. Requested custom catalog proposal.',
       tags: ['consulting', 'prospective'],
       status: 'active',
+      visible: true,
+      version: 1,
       createdAt: subDays(12),
       updatedAt: subDays(12),
     },
     {
       id: 'prt_105',
+      slug: 'legacy-hardware-corp',
       partyCode: 'PRT-005',
       name: 'Legacy Hardware Corp',
       type: 'customer',
@@ -146,12 +193,27 @@ export async function seedInitialPartiesData(forceReset = false): Promise<void> 
       notes: 'Account merged into Acme Retailers in Q1.',
       tags: ['inactive', 'legacy'],
       status: 'archived',
+      visible: false,
+      version: 1,
       createdAt: subDays(180),
       updatedAt: subDays(90),
     },
   ];
 
-  await db.parties.bulkPut(seedParties);
+  // Deduplicate before seeding
+  const existingParties = await db.parties.toArray();
+  const existingSlugs = new Set(existingParties.map(p => p.slug));
+  const existingEmails = new Set(existingParties.map(p => p.email).filter(Boolean));
+
+  const partiesToSeed = seedParties.filter(p => {
+    if (existingSlugs.has(p.slug)) return false;
+    if (p.email && existingEmails.has(p.email)) return false;
+    return true;
+  });
+
+  if (partiesToSeed.length > 0) {
+    await db.parties.bulkPut(partiesToSeed);
+  }
 
   // Seed History
   const seedHistory: PartyHistoryEntry[] = [

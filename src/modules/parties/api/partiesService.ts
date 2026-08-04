@@ -90,6 +90,7 @@ export class PartiesService implements IPartiesService {
 
     const newParty: Party = {
       id,
+      slug: '', // Will be generated in repository if empty
       partyCode,
       name: input.name.trim(),
       type: input.type,
@@ -104,6 +105,8 @@ export class PartiesService implements IPartiesService {
       notes: input.notes?.trim() || '',
       tags: input.tags ? input.tags.map((t) => t.trim()).filter(Boolean) : [],
       status: 'active',
+      visible: true,
+      version: 1,
       createdAt: now,
       updatedAt: now,
     };
@@ -147,6 +150,10 @@ export class PartiesService implements IPartiesService {
     if (input.tags !== undefined)
       updates.tags = input.tags.map((t) => t.trim()).filter(Boolean);
     if (input.status !== undefined) updates.status = input.status;
+    if (input.website !== undefined) updates.website = input.website.trim();
+    if (input.whatsapp !== undefined) updates.whatsapp = input.whatsapp.trim();
+    if (input.relatedPartyIds !== undefined) updates.relatedPartyIds = input.relatedPartyIds;
+    if (input.relatedCatalogItemIds !== undefined) updates.relatedCatalogItemIds = input.relatedCatalogItemIds;
 
     await PartiesRepository.updatePartyRecord(input.id, updates);
     return this.getPartyById(input.id);
